@@ -1,0 +1,98 @@
+--1.Create a stored procedure to show the number of students per department.[use ITI DB]
+create procedure num_std_per_dep
+as
+begin
+select Dept_Id, count(*) as "Number of students" from Student
+where Dept_Id is not null
+group by Dept_id
+end
+
+--2. Create a stored procedure that will check for the # of employees in the
+--project p1 if they are more than 3 print message to the user “'The number
+--of employees in the project p1 is 3 or more'” if they are less display a
+--message to the user “'The following employees work for the project p1'” in
+--addition to the first name and last name of each one. [Company DB]
+create procedure check_empnum_procedure
+as
+begin
+declare @emp_no int
+set @emp_no=( select count(*) as "Number of employees" from project, Works_for, employee
+where pno=pnumber and essn=SSN
+and pname='al rehab'
+group by pname )
+if @emp_no >= 3
+select 'The number of employees in the project p1 is 3 or more'
+else
+select fname+' '+lname as "The following employees work for the project p1" from Employee, works_for, project
+where pnumber=pno and essn=ssn
+and pname='al rehab'
+end
+
+--3. Create a stored procedure that will be used in case there is an old employee has left the project and a new one become instead of him.
+-- The procedure should take 3 parameters (old Emp. number, new Emp. number
+--and the project number) and it will be used to update works_on table. [Company DB]
+create procedure update_emp(@old_emp_num int , @new_emp_num int, @proj_name varchar(25))
+as
+begin
+update Works_for
+set essn= @new_emp_num
+where pno=( select pnumber from project where pname=@proj_name ) and essn=@old_emp_num
+end
+
+4- create table audit_budget ( ProjectNo int, UserName varchar(25) , ModifiedDate Date, Budget_Old int, Budget_new int )
+create trigger audit_budget_trigger
+on project after update
+as
+begin
+insert into audit_budget
+select i.pnumber, suser_name(), getdate(), d.budget , i.budget
+from inserted i , deleted d
+end
+
+--5. Create a trigger to prevent anyone from inserting a new record in the Department table [ITI DB]
+--“Print a message for user to tell him that he can’t insert a new record in
+--that table”
+create trigger insert_prevention on department
+instead of insert
+as
+begin
+select 'error .. you can not insert a new record in that table '
+end
+
+--6.Create a trigger that prevents the insertion Process for Employee table in
+-- March [Company DB].
+create trigger insert_prevention_march on student
+instead of insert
+as
+begin
+if month(getdate())= 3 -- 3 indicates month March
+select 'error .. you can not insert a new record in that table '
+else
+insert into student
+select * from inserted
+end
+
+--7.Create a trigger on student table after insert to add Row in Student Audit
+--table (Server User Name , Date, Note) where note will be “[username]
+--Insert New Row with Key=[Key Value] in table [table name]”
+create table audit_Student ( server_user_name varchar(30), insert_date Date, Note Varchar(10) )
+create trigger audit_Student_trigger on student
+after insert
+as
+begin
+insert into audit_Student
+select SUSER_NAME(), getdate(), concat(SUSER_NAME(),' inserted new row with key=', St_Id,' in table student')
+from inserted
+end
+
+--8. Create a trigger on student table instead of delete to add Row in Student
+--Audit table (Server User Name, Date, Note) where note will be“ try to
+--delete Row with Key=[Key Value]”
+create trigger audit_instead_of_delete on student
+instead of delete
+as
+begin
+insert into audit_Student
+select SUSER_NAME(), getdate(), concat(SUSER_NAME(),' tried to delete Row with key=', St_Id)
+from deleted
+end
