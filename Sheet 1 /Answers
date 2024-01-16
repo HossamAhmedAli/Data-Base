@@ -1,1 +1,38 @@
+Problem 1
+* Schema Mapping:
+1.	Musician (ID, Name, Phone, Street, City) 
+2.	Instrument (Name, Key) 
+3.	Mus_Inst (ID, Inst_Name)
+4.	Album (ID, Copyright_Date, Title,  Producer_ID) 
+5.	Song (Title, Author, Album_ID)
+6.	Mus_Song (ID, Title) 
+-----------------------------------------------------
+Problem 2
+* Schema Mapping:
+1.	Sales office (Sales Office_Num, Loc, Manger ID)
+2.	Employee (Emp_ID, Name, Sales Office_Num)
+3.	Property (Property_ID, Add, City, State, zip, Sales Office_Num)
+4.	Owner (Owner_ID, name)
+5.	Property_owner (Property_ID, Owner_ID, Percent_Owned)
+-----------------------------------------------------
+Problem 3
+Patient: (Patient_ID, DOB, Name, Ward_ID, Consultant_ID)
+Consultant: (Consultant_ID  , Name)
+Drug: (Code, Recommend_Dosage)
+Drug_brandnames: (Code, Brandname)
+Ward: (Ward_ID, Name, Nurse_Num)
+Nurse: (Num, Name, Ward _ID)
+Patient_Consultant: (Patient ID, Consultant ID)
+Treatment: (Patient_ID, Drug_Code , Date , Time, Nurse_Num, Dosage)
+-----------------------------------------------------
+Problem 4
+1.	Employee (ID, Name, Position, Address, Day, Month, Year, Gender, Airline_ID)
+2.	Airline (ID, Name, Address, Contact_Person) 
+3.	Employee_Qualifications (Emp_ID, Qualification)
+4.	Airline_Phones (ID, Phone)
+5.	Transaction (ID, Desc, Date, Amount, Airline_ID)
+6.	Aircraft (ID, Capacity, Model, Airline_ID)
+7.	Crew(CrewID,Aircraft_id,Major_Pilot, Ass_Pilot, Hostess1, Hostess2)
+8.	Route (ID, Origin, Distance, Destination, Classification)
+9.	Aircraft_Route (Aircraft_ID, Route_ID, DeptDateTime, ArrDateTime, No_Pass, PricePerPassenger)
 
