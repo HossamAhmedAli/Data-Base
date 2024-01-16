@@ -1,0 +1,75 @@
+--1.Create a view that displays student full name, course name if the student has a grade more than 50.
+create view std_course_grade as
+select st_fname+' '+st_lname as " Student Full Name" , crs_name from Stud_Course , Student, course
+where Stud_Course.St_Id=Student.St_Id and course.Crs_id=Stud_Course.Crs_Id
+and grade > 50
+
+--2.Create an Encrypted view that displays manager names and the topics they teach.
+create view enc_view
+with encryption
+as
+select ins_name as "manager Name" , Top_name as "Topic Name" from Ins_Course, Instructor, course,topic
+where Instructor.Ins_Id= Ins_Course.Ins_Id and Instructor.Ins_Id in( select dept_manager from Department where Dept_Manager is not null)
+and course.Crs_Id = Ins_Course.Crs_Id and topic.Top_Id = course.Top_Id
+
+--3.Create a view that will display Instructor Name, Department Name for the ‘SD’ or ‘Java’ Department
+create view ins_dep as
+select Ins_name ,Dept_name
+from instructor, department
+where instructor.Dept_Id=Department.Dept_Id
+and Dept_Name in ( 'SD', 'Java')
+
+--4.Create a view “V1” that displays student data for student who lives in Alex or Cairo.
+Note: Prevent the users to run the following query
+Update V1 set st_address=’tanta’
+Where st_address=’alex’
+create view v1 as
+select * from Student
+where St_Address in( 'Alex', 'Cairo') with check option
+
+--5.Create a view that will display the project name and the number of employees work on it. “Use Company DB”
+create view project_emp as
+select pno, count(*) as " Employe number" from Employee, Works_for, Project
+where essn=ssn and pno=pnumber
+group by pno
+
+--6.Create index on column (Hiredate) that allow u to cluster the data in table Department. What will happen?
+create nonclustered index nonclus_index on Department ( Manager_hiredate ) -- if I made it clustred, it would give an error because it is allowed to let only one clustered index
+exists in the table which is by default the pk cluster index
+
+--7.Create index that allow u to enter unique ages in student table. What will happen?
+create unique nonclustered index uni_index on student(st_Age) error message will appear because there is duplicated value in the st_age column
+
+--8.Using Merge statement between the following two tables [User ID, Transaction Amount]
+create table daily_transaction
+(
+UserID int ,
+TransactionAmount int,
+)
+create table last_transaction
+(
+UserID int ,
+TransactionAmount int,
+)
+insert into daily_transaction values( 1,1000), (2, 2000), (3,1000)
+insert into last_transaction values( 1,4000), (4, 2000), (2,10000)
+merge into last_transaction as lt
+using daily_transaction as dt
+on lt.UserID = dt.UserID
+when matched then
+update set lt.TransactionAmount=lt.TransactionAmount+dt.TransactionAmount
+when not matched then
+insert (UserID,TransactionAmount) values( dt.UserID , dt.TransactionAmount);
+--------------------------------------------------------------------------------
+Normalization Answers
+1-
+0N: Department ( DeptNo:pk, Dept_name, location, Mgr_name, MGR_ID, tel_extn) customer ( CustNo:pk , cust_name, Date_complaint, nature_complaint)
+1N: Department( DeptNo:pk, Dept_name, location, Mgr_name, MGR_ID_No , tel_extn) customer ( ( CustNo, DeptNo:fk ) pk , cust_name, Date_complaint, nature_complaint)
+2N: Department( DeptNo:pk, Dept_name, location, Mgr_name, MGR_ID_No , tel_extn) customer ( ( CustNo fk, DeptNo:fk ) pk , Date_complaint, nature_complaint) customer_info ( CustNo :pk, cust_name )
+3N: MGR_info( MGR_ID_No: pk, Mgr_name ) Department( DeptNo:pk, Dept_name, location , tel_extn) customer ( ( CustNo fk, DeptNo:fk ) pk , Date_complaint, nature_complaint) customer_info( CustNo :pk, cust_name )
+
+2- 
+0N: Employee ( Emp_no: PK, Emp_name, Dept, Dept_manager) project ( Proj_id: pk, Proj_Start_Date, Location, Weeks_on_project)
+1N: Employee ( Emp_no: PK, Emp_name, Dept, Dept_manager) project ( ( Proj_id pk , Emp_no fk) pk, Proj_Start_Date, Location, Weeks_on_project ) proj_location ( proj_id fk , location ) pk --A project can take place in several locations
+2N: Employee ( Emp_no: PK, Emp_name, Dept, Dept_manager) proj_location ( proj_id fk , location ) pk project ( ( Proj_id fk, Emp_no fk) pk, Weeks_on_project ) project_info ( Proj_id : pk , Proj_Start_Date, Location)
+3N: Department ( Dept: pk, Dept_manager) Employee ( Emp_no: PK, Emp_name ) project ( ( Proj_id fk, Emp_no fk) pk, Weeks_on_project ) project_info ( Proj_id : pk , Proj_Start_Date, Location)
