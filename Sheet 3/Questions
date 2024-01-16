@@ -13,5 +13,5 @@ Create The following Queries:
 12.	Display All Employees data and the data of their dependents even if they have no dependents
 13.	Insert your personal data to the employee table as a new employee in department number 30, SSN = 102672, Superssn = 112233, salary=3000.
 14.	Insert another employee with personal data your friend as new employee in department number 30, SSN = 102660, but don’t enter any value for salary or supervisor number to him.
-15.	Upgrade your 
+15.	Upgrade your salary by 20 % of its last value.
 
