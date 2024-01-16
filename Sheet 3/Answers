@@ -1,0 +1,66 @@
+1-
+select Dnum, Dname, MGRSSN, fname+' '+lname as Manager_Name
+from Departments, Employee
+where MGRSSN=SSN
+----------------------------------------------------------
+2-
+select Dname as "Department name" , pname as "Project name"
+from Departments, Project
+where Departments.Dnum = Project.Dnum
+----------------------------------------------------------
+3-
+select Dependent_name, Dependent.Sex, Dependent.Bdate, Fname+' '+Lname as "Employee Name"
+from Dependent, Employee
+where ESSN=SSN
+----------------------------------------------------------
+4-
+select pname as "Project Name", Pnumber as "Project Number", Plocation " Project location"
+from Project
+where city in('cairo','alex')
+----------------------------------------------------------
+5-
+select *
+from Project
+where pname like'a%'
+----------------------------------------------------------
+6-
+select*
+from Employee
+where dno=30
+and Salary between 1000 and 2000
+----------------------------------------------------------
+7-
+select fname+' '+lname as "Name"
+from Employee, Works_for, Project
+where ESSn=SSN and pnumber=pno
+and project.Pname='Al Rabwah'
+and Dno=10 and Hours>=10
+----------------------------------------------------------
+8-
+Select emp.fname+' '+emp.Lname as "employee name", supervisor.fname+' '+supervisor.Lname as "
+Supervior Name"
+from Employee emp, Employee supervisor
+where supervisor.ssn=emp.Superssn
+and supervisor.fname='Kamel' and supervisor.lname='mohamed'
+----------------------------------------------------------
+9-
+select fname, lname, pname
+from Employee, Project, Works_for
+where ESSn=SSN and Pno=Pnumber
+order by pname
+----------------------------------------------------------
+10-
+select pnumber, Dname,MGRSSN, lname, Address ,Bdate
+from Employee, Project, Departments
+where MGRSSN=SSN and project.Dnum=Departments.Dnum
+and city='cairo'
+----------------------------------------------------------
+11-
+select *
+from employee, Departments
+where MGRSSN=SSN
+----------------------------------------------------------
+12-
+select *
+from employee left join Dependent
+on ESSN=SSN
