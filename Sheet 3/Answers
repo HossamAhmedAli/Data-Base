@@ -68,3 +68,12 @@ on ESSN=SSN
 13-
 insert into employee
 values('Hossam','Ahmed',102672,10-6-2008,'15 nw banisuef','m',3000,112233,30)
+----------------------------------------------------------
+14-
+insert into employee(fname,lname,ssn,bdate,address,sex,Dno)
+values('Ali','Afify',102660, 8-6-2007, '110 estern banisuef','m',30)
+----------------------------------------------------------
+15-
+update employee
+set salary=Salary*1.2
+where ssn=102672
