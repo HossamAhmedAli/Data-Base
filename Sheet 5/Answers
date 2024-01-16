@@ -1,9 +1,11 @@
---1.Retrieve number of students who have a value in their age. select count(*) from Student where St_Age is not null
+--1.Retrieve number of students who have a value in their age.
+select count(*) from Student where St_Age is not null
 
---2.Get all instructors Names without repetition select distinct ins_name from Instructor
+--2.Get all instructors Names without repetition 
+select distinct ins_name from Instructor
 where ins_name is not null -- to eliminate NULL names as ins_name is not pk so it can be null
 
-3- Display student with the following Format (use isNull function)
+3-- Display student with the following Format (use isNull function)
 select st_id as "Student ID", isnull(St_Fname,'')+' '+isnull(St_Lname,'') as "Student Name" , Dept_name as "Department Name"
 from Student,Department
 where student.Dept_Id=Department.Dept_Id
