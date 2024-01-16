@@ -1,0 +1,125 @@
+
+1-
+Building DataBase Section:
+
+CREATE RULE location_rule
+AS 
+@range in('NY','DS', 'KW')
+
+sp_bindrule 'location_rule','department.location'
+insert into department
+values (1, 'Research', 'NY'), (2, 'Accounting', 'DS'), (3, 'Markiting', 'KW')
+
+create table employee
+(
+EmpNo int not null,
+EmpFname varchar(20) not null,
+EmpLname varchar(20) not null,
+DeptNo int,
+salary int,
+constraint emp_no_pk primary key ( EmpNo),
+constraint Dept_no_fk foreign key ( DeptNo) references Department(DeptNo),
+constraint salary_uniq unique ( salary ) 
+)
+
+create rule salary_rule
+as
+@range<6000
+
+sp_bindrule 'salary_rule','employee.salary'
+
+insert into employee
+values ( 25348, 'Mathew','Smith',3,2500) , (10102, 'Ann', 'Jones', 3, 3000), (18316,'John', 'Barrimore', 1, 2400 ),(29346, 'James','James',2, 2800),
+(9031, 'Lisa', 'Bertoni', 2, 4000), (2581, 'Elisa', 'Hansel', 2, 3600), (28559, 'Sybl', 'Moser', 1, 2900)
+
+alter table works_on
+add constraint enterdate_def default getdate() for Enter_Date
+
+Testing Referential Integrity
+--1-Add new employee with EmpNo =11111 In the works_on table [what will happen]
+insert into works_on ( EmpNo ) values ( 11111 )
+error message : “ Cannot insert the value NULL into column 'ProjectNo', table 'lab6.dbo.works_on'; column does not allow nulls. INSERT fails “
+
+--2-Change the employee number 10102  to 11111  in the works on table [what will happen]
+update employee 
+set EmpNo=11111
+where EmpNo=10102
+ error message: “The UPDATE statement conflicted with the REFERENCE constraint "FK_works_on_employee". The conflict occurred in database "lab6", table "dbo.works_on", column 'EmpNo'”
+
+
+--3-Modify the employee number 10102 in the employee table to 22222. [what will happen]
+update employee 
+set EmpNo=22222
+where EmpNo=10102
+error message: “The UPDATE statement conflicted with the REFERENCE constraint "FK_works_on_employee". The conflict occurred in database "lab6", table "dbo.works_on", column 'EmpNo'”
+
+--4-Delete the employee with id 10102
+delete from employee
+where EmpNo=10102
+error message: “The UPDATE statement conflicted with the REFERENCE constraint "FK_works_on_employee". The conflict occurred in database "lab6", table "dbo.works_on", column 'EmpNo'”
+
+Table modification
+--1-Add  TelephoneNumber column to the employee table[programmatically]
+ALTER TABLE employee
+ADD TelephoneNumber text;
+
+--2-drop this column[programmatically]
+ALTER TABLE employee
+DROP COLUMN TelephoneNumber;
+----------------------------------------------------
+
+--2.Create the following schema and transfer the following tables to it 
+--a.Company Schema 
+--i.Department table (Programmatically)
+--ii.Project table (using wizard
+create schema Company 
+
+alter schema company
+transfer dbo.department 
+
+alter schema company
+transfer dbo.project
+
+--b.Human Resource Schema
+--i.Employee table (Programmatically)
+
+create schema HR
+
+alter schema HR
+transfer dbo.employee
+
+--4.Create Synonym for table Employee as Emp and then run the following queries and describe the results
+--a.Select * from Employee
+
+create synonym Emp for HR.employee
+select * from employee
+--b.Select * from [Human Resource].Employee
+Select * from [HR].Employee
+--c.Select * from Emp
+select * from emp
+--d.Select * from [Human Resource].Emp
+select * from [HR].emp
+error:Invalid object name 'HR.emp'.
+
+
+--5.Increase the budget of the project where the manager number is 10102 by 10%.
+update company.project 
+set company.project.budget=company.project.budget*1.1
+where company.project.projectno =( select dbo.works_on.ProjectNo from works_on where  dbo.works_on.EmpNo=10102 and  dbo.works_on.job='manager')
+
+--6.Change the name of the department for which the employee named James works.The new department name is Sales.
+update company.department
+set company.department.DeptName='Sales'
+where company.department.DeptNo = (select HR.employee.DeptNo from HR.employee where HR.employee.EmpFname='James')
+
+--7.Change the enter date for the projects for those employees who work in project p1 and belong to department ‘Sales’. The new date is 12.12.2007.
+update dbo.works_on
+set dbo.works_on.Enter_Date='12-12-2007'
+where dbo.works_on.EmpNo in ( select dbo.works_on.EmpNo from  dbo.works_on where dbo.works_on.ProjectNo=1)
+and dbo.works_on.EmpNo in ( select HR.employee.EmpNo from HR.employee,company.Department where company.Department.DeptNo=HR.employee.DeptNo and company.Department.DeptName='Sales')
+--8.	Delete the information in the works_on table for all employees who work for the department located in KW.
+delete from dbo.works_on
+where dbo.works_on.EmpNo in ( 
+select distinct dbo.works_on.EmpNo from HR.employee, dbo.works_on, company.Department
+where  HR.employee.EmpNo=dbo.works_on.EmpNo and HR.employee.DeptNo=company.Department.DeptNo
+and company.Department.Location='KW' )
